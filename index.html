@@ -120,8 +120,30 @@
 
   <footer class="footer">© 2025 Tenk HR AS – demo</footer>
 
-  <script src="lib/firebase-app.umd.js"></script>
-  <script src="lib/firebase-firestore.umd.js"></script>
-  <script src="script.js"></script>
+<!-- 🚀 Firebase – legg dette helt nederst før </body> -->
+
+<!-- 1️⃣ Firebase-compat fra CDN (offisiell kilde) -->
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+
+<!-- 2️⃣ Konfigurasjon – hentes fra firebase-config.json -->
+<script>
+  // Last konfigurasjon fra ekstern fil (firebase-config.json)
+  fetch("firebase-config.json")
+    .then(response => response.json())
+    .then(firebaseConfig => {
+      // Initialiser Firebase
+      firebase.initializeApp(firebaseConfig);
+      window.db = firebase.firestore();
+      console.log("✅ Firebase koblet til:", firebaseConfig.projectId);
+    })
+    .catch(err => console.error("🚫 Klarte ikke laste firebase-config.json", err));
+</script>
+
+<!-- 3️⃣ Din egen appkode -->
+<script src="script.js"></script>
+
+</body>
+</html>
 </body>
 </html>

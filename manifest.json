@@ -1,0 +1,15 @@
+{
+  "name": "Tenk Smart",
+  "short_name": "TenkSmart",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0e5f4f",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

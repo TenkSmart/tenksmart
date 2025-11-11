@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tenk Smart – sparing & rabatter</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="theme-color" content="#0e5f4f" />
+</head>
+<body>
+  <header class="app-header">
+    <img src="assets/logo.png" alt="Tenk Smart" class="logo" />
+    <div class="titles">
+      <h1>Tenk Smart</h1>
+      <p class="subtitle">Rabattsporing som faktisk motiverer 💚</p>
+    </div>
+    <div class="top-actions">
+      <button id="btnExport" class="btn-outline">Eksporter CSV</button>
+      <button id="btnReset" class="btn-danger">Nullstill</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" id="greeting"></section>
+
+    <section class="card">
+      <h2>Profil</h2>
+      <div class="grid">
+        <label>Visningsnavn
+          <input id="profileName" placeholder="Eks: Tina" />
+        </label>
+        <label>Testmodus
+          <select id="storageMode">
+            <option value="local">Lokal (anbefalt for demo)</option>
+            <option value="firebase">Firebase (krever nøkkel)</option>
+          </select>
+        </label>
+      </div>
+      <div class="field-row" style="margin-top:10px">
+        <button id="saveProfile">Lagre profil</button>
+      </div>
+      <p class="helper">Navnet brukes på leaderboard. Firebase krever at du fyller inn nøkler i <code>firebase-config.json</code>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Registrer kjøp / besparelse</h2>
+      <form id="purchaseForm">
+        <div class="grid">
+          <label>Butikk / leverandør
+            <input type="text" id="merchant" placeholder="Eks: Rema 1000" required />
+          </label>
+          <label>Vare / tittel
+            <input type="text" id="item" placeholder="Eks: Mat" required />
+          </label>
+          <label>Kategori
+            <select id="category">
+              <option value="Dagligvarer">Dagligvarer</option>
+              <option value="Transport">Transport</option>
+              <option value="Helse/Skjønnhet">Helse/Skjønnhet</option>
+              <option value="Elektronikk">Elektronikk</option>
+              <option value="Reise">Reise</option>
+              <option value="Annet">Annet</option>
+            </select>
+          </label>
+          <label>Beløp (NOK)
+            <input type="number" id="amount" step="0.01" min="0" placeholder="0" required />
+          </label>
+          <label>Rabatt (%)
+            <input type="number" id="discount" step="0.1" min="0" max="100" placeholder="0" />
+          </label>
+        </div>
+
+        <label>Notat (valgfritt)
+          <textarea id="note" placeholder="Hvor fant du rabatten? Kode?"></textarea>
+        </label>
+
+        <div class="field-row">
+          <div>
+            <label>Kvittering/bilde (valgfritt)
+              <input type="file" id="receipt" accept="image/*" />
+            </label>
+            <div id="receiptPreviewWrap"></div>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top:8px">
+          <button type="submit">Legg til</button>
+          <button type="button" id="add10" class="btn-outline">+10 %</button>
+          <button type="button" id="add20" class="btn-outline">+20 %</button>
+          <button type="button" id="add40" class="btn-outline">+40 %</button>
+        </div>
+        <p id="calcPreview" class="helper"></p>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Dine tall <span class="badge" id="monthBadge"></span></h2>
+      <div class="stats">
+        <div class="stat"><span id="statPurchases">0</span><label>Registreringer</label></div>
+        <div class="stat"><span id="statSpent">0</span><label>Brukt (NOK)</label></div>
+        <div class="stat"><span id="statSaved">0</span><label>Spart (NOK)</label></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Siste registreringer</h2>
+      <ul id="recentList" class="recent"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Leaderboard – spart denne måneden</h2>
+      <table class="leaderboard" id="leaderboardTable">
+        <thead><tr><th>#</th><th>Navn</th><th>Antall</th><th>Spart (NOK)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="helper">Lokalt vises kun din profil. Med Firebase vises alle testere.</p>
+    </section>
+  </main>
+
+  <footer class="footer">© 2025 Tenk HR AS – demo</footer>
+
+  <script src="lib/firebase-app.umd.js"></script>
+  <script src="lib/firebase-firestore.umd.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

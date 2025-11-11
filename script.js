@@ -280,3 +280,18 @@ function resetAll(){
   await Storage.seedDemo();
   renderAll();
 })();
+// --- Copy affiliate codes (Kron / Sintra) ---
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.copy-code');
+  if (!btn) return;
+  const code = btn.getAttribute('data-code');
+  if (!code) return;
+  try {
+    await navigator.clipboard.writeText(code);
+    const old = btn.textContent;
+    btn.textContent = 'Kopiert!';
+    setTimeout(() => (btn.textContent = old), 1200);
+  } catch {
+    alert('Kunne ikke kopiere. Marker koden og kopier manuelt 😊');
+  }
+});

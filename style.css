@@ -82,4 +82,56 @@ hr.sep{border:0;border-top:1px dashed #e2e6e4;margin:10px 0}
   transform: scale(1.04);
   box-shadow: 0 0 8px rgba(191, 167, 111, 0.4);
 }
+/* --- Smarte tips / Affiliate --- */
+#smart-tips .helper {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: -6px;
+  margin-bottom: 10px;
+}
+.smart-tips {
+  list-style: none;
+  padding-left: 0;
+  display: grid;
+  gap: 12px;
+}
+.smart-tips li {
+  background: var(--card);
+  border: 1px solid #e7ecea;
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+.smart-tips .code {
+  background: #f3f7f6;
+  border: 1px dashed #c9d7d3;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.smart-tips .link {
+  color: var(--brand, #0e5f4f);
+  font-weight: 600;
+  text-decoration: none;
+}
+.smart-tips .link:hover {
+  color: #bfa76f;
+}
+/* Reuse button look */
+.btn.btn-outline {
+  background: #fff;
+  border: 2px solid #0e5f4f;
+  color: #0e5f4f;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.btn.btn-outline:hover {
+  background: #bfa76f;
+  border-color: #bfa76f;
+  color: #0e5f4f;
+}
 

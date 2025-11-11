@@ -63,3 +63,23 @@ hr.sep{border:0;border-top:1px dashed #e2e6e4;margin:10px 0}
   transform: scale(1.04);
   box-shadow: 0 0 8px rgba(191, 167, 111, 0.4);
 }
+/* --- Tenk Smart Pro Stripe-knapp --- */
+.btn-primary {
+  background-color: #0e5f4f; /* Tenk Smart grønn */
+  color: #fffdf5;
+  border: 2px solid #bfa76f; /* gullkant */
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+  background-color: #bfa76f; /* gull ved hover */
+  color: #0e5f4f;
+  transform: scale(1.04);
+  box-shadow: 0 0 8px rgba(191, 167, 111, 0.4);
+}
+

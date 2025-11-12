@@ -1,4 +1,3 @@
-
 // ===== Helpers =====
 const money = (n)=> new Intl.NumberFormat('no-NO',{style:'currency',currency:'NOK'}).format(n||0);
 const num = (n)=> new Intl.NumberFormat('no-NO').format(n||0);
@@ -103,7 +102,7 @@ window.TS_FIREBASE = { enabled:false };
   }
 })();
 
-// ===== UI Logic =====
+// ===== UI Elements =====
 const els = {
   greeting: document.getElementById('greeting'),
   profileName: document.getElementById('profileName'),
@@ -129,6 +128,7 @@ const els = {
   btnReset: document.getElementById('btnReset'),
 };
 
+// ===== Greetings & Profile =====
 function greet(){
   const prof = readLS(LS.profile, {name:null});
   const first = prof?.first? true:false;
@@ -157,6 +157,7 @@ function saveProfile(){
   renderAll();
 }
 
+// ===== Receipts preview =====
 function handleReceiptPreview(file){
   if(!file) { els.previewWrap.innerHTML = ""; return; }
   const reader = new FileReader();
@@ -166,6 +167,7 @@ function handleReceiptPreview(file){
   reader.readAsDataURL(file);
 }
 
+// ===== Form wiring =====
 function wireForm(){
   els.receipt.addEventListener('change', (e)=> handleReceiptPreview(e.target.files?.[0]));
   document.getElementById('add10').onclick = ()=>{ els.discount.value = Number(els.discount.value||0)+10; updatePreview(); };
@@ -214,12 +216,64 @@ function updatePreview(){
   els.calcPreview.textContent = (a>0 && d>0) ? `Du sparer ${money(saved)} på dette kjøpet.` : "";
 }
 
+// ===== Stats helpers =====
 function calcStats(items){
   const spent = items.reduce((s,i)=> s + Number(i.amount||0), 0);
   const saved = items.reduce((s,i)=> s + (Number(i.amount||0)*(Number(i.discount||0)/100)), 0);
   return {count: items.length, spent, saved};
 }
 
+// ===== Insights helpers (SmartScore, top category, best week) =====
+function calcSmartScore(items){
+  if(!items.length) return 0;
+  const n = items.length;
+  const avgDisc = items.reduce((s,i)=>s+(Number(i.discount)||0),0)/n;            // 0–100
+  const withNotes = items.filter(i=>(i.note||'').trim().length>0).length/n;      // 0–1
+  const cats = new Set(items.map(i=>i.category||'Annet')).size;                  // 1..6
+  const catDiversity = Math.min(cats/6,1);                                       // 0–1
+  const freq = Math.min(Math.log2(n+1)/5,1);                                     // 0–1
+  let score = (freq*30) + (avgDisc*0.3) + (withNotes*20) + (catDiversity*20);    // 0–100+
+  return Math.round(Math.min(score,100));
+}
+
+function topCategoryBySavings(items){
+  const map = {};
+  for(const i of items){
+    const saved = (Number(i.amount)||0) * ((Number(i.discount)||0)/100);
+    const k = i.category || 'Annet';
+    map[k] = (map[k]||0) + saved;
+  }
+  const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length) return {category:'–', amount:0};
+  const [category, amount] = entries[0];
+  return {category, amount: Math.round(amount)};
+}
+
+function isoWeek(d){
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (date.getUTCDay() + 6) % 7;
+  date.setUTCDate(date.getUTCDate() - dayNum + 3);
+  const firstThursday = new Date(Date.UTC(date.getUTCFullYear(),0,4));
+  const week = 1 + Math.round(((date - firstThursday) / 86400000 - 3) / 7);
+  return {year: date.getUTCFullYear(), week};
+}
+
+function bestWeekBySavings(items){
+  const map = {};
+  for(const i of items){
+    const d = new Date(i.date);
+    const {year, week} = isoWeek(d);
+    const key = `${year}-W${week}`;
+    const saved = (Number(i.amount)||0) * ((Number(i.discount)||0)/100);
+    map[key] = (map[key]||0) + saved;
+  }
+  const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length) return {label:'–', amount:0};
+  const [label, amount] = entries[0];
+  return {label, amount: Math.round(amount)};
+}
+
+// ===== Render =====
 async function renderAll(){
   const data = await Storage.listAll();
   const stats = calcStats(data);
@@ -230,6 +284,20 @@ async function renderAll(){
   const now = new Date();
   els.monthBadge.textContent = monthName(now);
 
+  // --- Insights (vises hvis <div id="insights"></div> finnes i index.html) ---
+  const score = calcSmartScore(data);
+  const topCat = topCategoryBySavings(data);
+  const bestW  = bestWeekBySavings(data);
+  const insightsEl = document.getElementById('insights');
+  if (insightsEl) {
+    insightsEl.innerHTML = `
+      <div class="helper">SmartScore: <strong>${score}</strong> / 100</div>
+      <div class="helper">Mest spart: <strong>${topCat.category}</strong> – ${num(topCat.amount)} kr</div>
+      <div class="helper">Beste uke: <strong>${bestW.label}</strong> – ${num(bestW.amount)} kr</div>
+    `;
+  }
+
+  // Siste registreringer
   const recent = data.slice(-8).reverse();
   els.recentList.innerHTML = recent.map(i=>{
     const saved = Number(i.amount||0)*(Number(i.discount||0)/100);
@@ -249,6 +317,7 @@ async function renderAll(){
   els.lbTable.innerHTML = lb.map((row, idx)=> `<tr><td>${idx+1}</td><td>${row.name}</td><td>${row.count}</td><td>${money(row.total)}</td></tr>`).join('');
 }
 
+// ===== Export / Reset =====
 function exportCsv(){
   Storage.listAll().then(items=>{
     const header = "dato,navn,butikk,vare,kategori,belop,rabatt_prosent,spart,notat\n";
@@ -256,7 +325,7 @@ function exportCsv(){
     const rows = items.map(i=>{
       const saved = Number(i.amount||0)*(Number(i.discount||0)/100);
       return `${i.date},${(prof.name||'Meg')},${i.merchant},${i.item},${i.category||''},${i.amount},${i.discount},${saved},"${(i.note||'').replace(/\"/g,'\"')}"`;
-    }).join("\\n");
+    }).join("\n");
     const blob = new Blob([header + rows], {type:"text/csv;charset=utf-8;"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -273,15 +342,7 @@ function resetAll(){
   renderAll();
 }
 
-(async function init(){
-  greet();
-  loadProfileToUI();
-  wireForm();
-  await Storage.seedDemo();
-  renderAll();
-})();
-// --- Copy affiliate codes (Kron / Sintra) ---
-// Smarte tips: kopier kode-knapper
+// ===== Optional: copy affiliate codes (harmløs hvis ingen knapper finnes) =====
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.copy-code');
   if (!btn) return;
@@ -293,3 +354,12 @@ document.addEventListener('click', (e) => {
     setTimeout(() => (btn.textContent = old), 1200);
   });
 });
+
+// ===== Init =====
+(async function init(){
+  greet();
+  loadProfileToUI();
+  wireForm();
+  await Storage.seedDemo();
+  renderAll();
+})();
